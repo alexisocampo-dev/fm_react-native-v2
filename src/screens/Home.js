@@ -1,5 +1,13 @@
+import { template } from '@babel/core';
 import React, { useCallback, useEffect, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import {
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import PalettePreview from '../components/PalettePreview';
 
 const SOLARIZED = [
@@ -43,7 +51,10 @@ const COLOR_PALETTES = [
   { paletteName: 'Rainbow', colors: RAINBOW },
 ];
 
-const Home = ({ navigation }) => {
+const Home = ({ navigation, route }) => {
+  const newColorPalette = route.params
+    ? route.params.newColorPalette
+    : undefined;
   const [colorPalettes, setcolorPalettes] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -68,6 +79,12 @@ const Home = ({ navigation }) => {
     setIsRefreshing(false);
   }, []);
 
+  useEffect(() => {
+    if (newColorPalette) {
+      setcolorPalettes(palettes => [newColorPalette, ...palettes]);
+    }
+  }, [newColorPalette]);
+
   return (
     <View>
       <FlatList
@@ -85,6 +102,12 @@ const Home = ({ navigation }) => {
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
         }
+        ListHeaderComponent={
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ColorPaletteModal')}>
+            <Text style={styles.buttonText}>Add a color scheme</Text>
+          </TouchableOpacity>
+        }
       />
     </View>
   );
@@ -94,6 +117,12 @@ const styles = StyleSheet.create({
   list: {
     padding: 10,
     backgroundColor: 'white',
+  },
+  buttonText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'teal',
+    marginBottom: 10,
   },
 });
 
